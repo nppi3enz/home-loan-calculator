@@ -1,4 +1,5 @@
 # home-loan-calculator
+![alt text](https://travis-ci.com/nppi3enz/home-loan-calculator.svg?branch=main)
 
 ## Build Setup
 
