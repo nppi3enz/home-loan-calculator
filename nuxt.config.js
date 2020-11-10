@@ -41,7 +41,7 @@ export default {
     ['v-currency-field/nuxt-treeshaking', {
       locale: 'en',
       decimalLength: 2,
-      autoDecimalMode: true,
+      autoDecimalMode: false,
       min: 0,
       max: null,
       defaultValue: 0,
