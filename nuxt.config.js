@@ -4,8 +4,8 @@ export default {
   target: 'static',
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    titleTemplate: '%s - home-loan-calculator',
-    title: 'home-loan-calculator',
+    titleTemplate: '%s - Home Loan Calculator',
+    title: 'โปรแกรมคำนวณสินเชื่อบ้าน สินเชื่อคอนโด (Home Loan Calculator)',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -35,14 +35,30 @@ export default {
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
+    ['v-currency-field/nuxt', {
+      locale: 'en',
+      decimalLength: 2,
+      autoDecimalMode: true,
+      min: null,
+      max: null,
+      defaultValue: 0,
+      valueAsInteger: false,
+      allowNegative: true
+    }]
   ],
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
-      dark: true,
+      // dark: false,
       themes: {
+        // light: {
+        //   primary: colors.purple,
+        //   secondary: colors.grey.darken1,
+        //   accent: colors.shades.black,
+        //   error: colors.red.accent3,
+        // },
         dark: {
           primary: colors.blue.darken2,
           accent: colors.grey.darken3,
