@@ -66,7 +66,14 @@
             </v-date-picker>
           </v-dialog>
         </v-col>
-
+      </v-row>
+      <v-row>
+        <v-col cols="12" sm="6" md="6" lg="6" xl="6">
+          <v-text-field
+            label="ชื่อธนาคาร/ทางเลือก"
+            v-model="tabName"
+            outlined/>
+        </v-col>
       </v-row>
 
       <v-container
@@ -130,6 +137,8 @@
 
         <v-col>
           อัตราดอกเบี้ย/ปี
+          <br>
+          <span>(งวด 1-12 = ปี 1 / งวด 13-24 = ปี 2 / งวด 25-36 = ปี 3)</span>
           <v-row v-for="(item, index) in interests" :key="index">
             <v-text-field
               label="งวดที่"
@@ -243,7 +252,7 @@
       <v-list-item>
         <v-list-item-content>
           <div class="overline mb-4">
-            ผลการคำนวณ
+            ผลการคำนวณ{{ tabName }}
           </div>
           <v-list class="transparent">
             <v-list-item-title class="text-right">จำนวนงวด (เดือน)</v-list-item-title>
@@ -345,6 +354,7 @@ export default {
     mlr: 0,
     startDate: new Date().toISOString().substr(0, 10),
     errors: {},
+    tabName: '',
     interests: [
       {
         start: 1,
@@ -383,15 +393,6 @@ export default {
     ],
     tables: [
       {}
-      // {
-      //   id: 0,
-      //   round: 1,
-      //   interest: 4.5,
-      //   pay: 30000,
-      //   payLoan: 1000,
-      //   payInterest: 100,
-      //   remain: 2000
-      // },
     ],
       barChartOptions: {
         responsive: true,
@@ -400,7 +401,7 @@ export default {
         // },
         title: {
           display: true,
-          text: 'กราฟแสดงเงินต้นสะสม ดอกเบี้ยสะสม และเงินต้นคงเหลือ'
+          text: 'กราฟแสดงเงินต้น ดอกเบี้ย และเงินต้นคงเหลือ'
         },
         scales: {
           yAxes: [
