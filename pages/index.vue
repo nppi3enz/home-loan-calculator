@@ -1,23 +1,73 @@
 <template>
   <v-col justify="center" align="center">
     <h1>โปรแกรมคำนวณสินเชื่อบ้าน สินเชื่อคอนโด</h1>
-    <p>ใช้สำหรับคำนวณเพื่อเปรียบเทียบดอกเบี้ยแต่ละธนาคารโดยคร่าว ๆ เท่านั้น</p>
-    <v-col>
-      <v-currency-field
-        label="เงินต้น"
-        v-model="startLoan"
-        outlined/>
+    <p>ใช้สำหรับคำนวณด้วยวิธีลดต้นลดดอกเพื่อเปรียบเทียบดอกเบี้ยแต่ละธนาคารโดยคร่าว ๆ เท่านั้น</p>
+    <v-col
+    no-gutters>
+      <v-row>
+        <v-col cols="12" sm="6" md="6" lg="6" xl="6">
+          <v-currency-field
+            label="เงินต้น"
+            v-model="startLoan"
+            outlined/>
+        </v-col>
+        <v-col cols="12" sm="6" md="6" lg="6" xl="6">
+          <v-text-field
+            label="ระยะเวลา (เดือน)"
+            v-model="month"
+            outlined
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" sm="6" md="6" lg="6" xl="6">
+          <v-currency-field
+            label="ชำระต่อเดือน"
+            v-model="payout"
+            outlined/>
+        </v-col>
+        <v-col cols="12" sm="6" md="6" lg="6" xl="6">
+          <v-dialog
+            ref="dialog"
+            v-model="modal"
+            :return-value.sync="startDate"
+            persistent
+            width="290px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="startDate"
+                label="วันที่เริ่มต้น"
+                readonly
+                v-bind="attrs"
+                v-on="on"
+                outlined
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="startDate"
+              scrollable
+            >
+              <v-spacer></v-spacer>
+              <v-btn
+                text
+                color="primary"
+                @click="modal = false"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                text
+                color="primary"
+                @click="$refs.dialog.save(startDate)"
+              >
+                OK
+              </v-btn>
+            </v-date-picker>
+          </v-dialog>
+        </v-col>
 
-      <v-text-field
-        label="ระยะเวลา (เดือน)"
-        v-model="month"
-        outlined
-      ></v-text-field>
-
-      <v-currency-field
-        label="ชำระต่อเดือน"
-        v-model="payout"
-        outlined/>
+      </v-row>
 
       <v-container
         class="px-0"
@@ -198,7 +248,7 @@
           <v-list class="transparent">
             <v-list-item-title class="text-right">จำนวนงวด (เดือน)</v-list-item-title>
             <v-list-item-subtitle  class="text-right">
-              <span class="text-h2">{{ tables.length }}</span>
+              <span class="text-h2">{{ tables.length-1 }}</span>
             </v-list-item-subtitle>
           </v-list>
           <v-list class="transparent">
@@ -236,6 +286,8 @@
           <template v-slot:item="{ item }">
               <tr>
                   <td>{{ item.round }}</td>
+                  <td>{{ dateFormat(item.date) }}</td>
+                  <td>{{ item.day }}</td>
                   <td>{{ numFormat(item.interest) }}%</td>
                   <td>{{ numFormat(item.pay) }}</td>
                   <td>{{ numFormat(item.payLoan) }}</td>
@@ -245,7 +297,7 @@
           </template>
           <template slot="body.append">
               <tr class="pink--text">
-                  <th class="title text-left" colspan="2">รวม</th>
+                  <th class="title text-left" colspan="4">รวม</th>
                   <th class="title">{{ numFormat(sumField('pay')) }}</th>
                   <th class="title">{{ numFormat(sumField('payLoan')) }}</th>
                   <th class="title">{{ numFormat(sumField('payInterest')) }}</th>
@@ -283,6 +335,7 @@ export default {
   },
   data: () => ({
     datacollection: null,
+    modal: false,
     addonMode: false,
     checkLoading: false,
     startLoan: 1700000,
@@ -290,6 +343,7 @@ export default {
     month: 360,
     mrr: 7.25,
     mlr: 0,
+    startDate: new Date().toISOString().substr(0, 10),
     errors: {},
     interests: [
       {
@@ -319,6 +373,8 @@ export default {
       //   value: "name"
       // },
       { text: "งวดที่", value: "round" },
+      { text: "วันที่", value: "date" },
+      { text: "จำนวนวัน", value: "day" },
       { text: "ดอกเบี้ย", value: "interest" },
       { text: "ยอดชำระ", value: "pay" },
       { text: "ชำระเงินต้น", value: "payLoan" },
@@ -326,6 +382,7 @@ export default {
       { text: "ยอดคงเหลือ", value: "remain" },
     ],
     tables: [
+      {}
       // {
       //   id: 0,
       //   round: 1,
@@ -445,10 +502,15 @@ export default {
       this.checkLoading = false
     },
     calculate() {
+      let startD = this.$dayjs(this.startDate, ["YYYY-MM-DD"]);
+      let endD = this.$dayjs(this.startDate, ["YYYY-MM-DD"]);
+
       let total_remain = this.startLoan
 
       let table_temp = [{
         round: 0,
+        date: endD,
+        day: 0,
         interest: 0,
         pay: 0,
         payLoan:  0,
@@ -458,9 +520,13 @@ export default {
       let i = 1
 
       while(total_remain >= 0) {
+        startD = endD
+        let currentMonth = endD.month()
+        endD = endD.month(currentMonth+1)
+        let day = endD.diff(startD, 'day')
 
         let percentInterest = this.getInterest(i)
-        let calculatePayInterest = Math.round(( percentInterest * total_remain / 100 / 365 * 30 * 100) ) / 100
+        let calculatePayInterest = Math.round(( percentInterest * total_remain / 100 / 365 * day * 100) ) / 100
         let payout = this.payout
 
         if(this.addonMode) {
@@ -480,6 +546,8 @@ export default {
 
         table_temp.push({
           round: i,
+          date: endD,
+          day: day,
           interest: percentInterest,
           pay: payout,
           payLoan: calculatePayLoan,
@@ -505,6 +573,9 @@ export default {
     },
     numFormat(n) {
       return numeral(n).format('0,0.00')
+    },
+    dateFormat(date){
+      return this.$dayjs(date).locale('th').format('DD MMM YYYY')
     },
     onlyForCurrency ($event) {
       let keyCode = ($event.keyCode ? $event.keyCode : $event.which);

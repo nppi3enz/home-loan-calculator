@@ -47,8 +47,15 @@ export default {
       defaultValue: 0,
       valueAsInteger: false,
       allowNegative: false
-    }]
+    }],
+    '@nuxtjs/dayjs'
   ],
+
+  dayjs: {
+    locales: ['en', 'th'],
+    defaultLocale: 'en',
+    plugins: [] // Your Day.js plugin
+  },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
