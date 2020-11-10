@@ -33,20 +33,20 @@ export default {
   // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
-    '@nuxtjs/vuetify',
+    ['@nuxtjs/vuetify', {treeShake: true}]
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    ['v-currency-field/nuxt', {
+    ['v-currency-field/nuxt-treeshaking', {
       locale: 'en',
       decimalLength: 2,
       autoDecimalMode: true,
-      min: null,
+      min: 0,
       max: null,
       defaultValue: 0,
-      valueAsInteger: false,
-      allowNegative: true
+      valueAsInteger: true,
+      allowNegative: false
     }]
   ],
 
