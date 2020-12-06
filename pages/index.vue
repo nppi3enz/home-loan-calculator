@@ -75,7 +75,6 @@
             outlined/>
         </v-col>
       </v-row>
-
       <v-container
         class="px-0"
         fluid
@@ -134,7 +133,6 @@
         </v-container>
 
       </v-container>
-
         <v-col>
           อัตราดอกเบี้ย/ปี
           <br>
@@ -520,7 +518,7 @@ export default {
       }]
       let i = 1
 
-      while(total_remain >= 0) {
+      while(total_remain >= 0 || i <= this.month) {
         startD = endD
         let currentMonth = endD.month()
         endD = endD.month(currentMonth+1)
