@@ -518,7 +518,7 @@ export default {
       }]
       let i = 1
 
-      while(total_remain >= 0 || i <= this.month) {
+      while(total_remain >= 0 && i <= this.month) {
         startD = endD
         let currentMonth = endD.month()
         endD = endD.month(currentMonth+1)
